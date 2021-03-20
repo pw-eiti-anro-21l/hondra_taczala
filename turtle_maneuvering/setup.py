@@ -14,12 +14,13 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='Piotr Hondra, Michał Taczała',
-    maintainer_email='piotrhondra@gmail.com, ',
+    maintainer_email='piotrhondra@gmail.com',
     description='Package to maneuver turtlesim robot given any key.',
     license='Apache License, Version 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'move = turtle_maneuvering.maneuver:main',
         ],
     },
 )

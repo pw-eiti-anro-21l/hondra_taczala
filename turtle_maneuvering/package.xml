@@ -4,8 +4,12 @@
   <name>turtle_maneuvering</name>
   <version>0.0.0</version>
   <description>Package to maneuver turtlesim robot given any key.</description>
-  <maintainer>Piotr Hondra, Michał Taczała</maintainer>
+  <maintainer email="piotrhondra@gmail.com">Piotr Hondra, Michał Taczała</maintainer>
   <license>Apache 2.0</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
