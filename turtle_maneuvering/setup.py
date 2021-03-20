@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'move = turtle_maneuvering.maneuver:main',
+            'param_talker = turtle_maneuvering.parameter:main',
         ],
     },
 )
