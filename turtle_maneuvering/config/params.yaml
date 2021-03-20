@@ -1,0 +1,6 @@
+keyboard_param_node:
+  ros__parameters:
+    up: 'w'
+    down: 's'
+    left: 'a'
+    right: 'd'
