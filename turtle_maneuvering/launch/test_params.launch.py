@@ -13,12 +13,34 @@ def generate_launch_description():
         'params.yaml'
     )
 
-    node = Node(
+
+
+
+    return LaunchDescription([
+
+    Node(
+        package='turtle_maneuvering',
+        executable='move',
+        output='screen',
+        prefix=["gnome-terminal ", "-- "]
+        
+        
+    ),
+    Node(
         package='turtle_maneuvering',
         executable='param_talker',
-        name='keyboard_param_node',
-        parameters=[config]
-    )
+        parameters=[config],
+        output='screen'
 
-    ld.add_action(node)
-    return ld
+    ),
+    Node(
+        package='turtlesim',
+        executable='turtlesim_node'
+    )
+    
+    ]
+    )
+    # ld.add_action(node)
+    # ld.add_action(node1)
+    # ld.add_action(node2)
+    # return ld

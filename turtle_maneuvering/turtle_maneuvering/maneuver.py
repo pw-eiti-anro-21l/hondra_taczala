@@ -28,9 +28,12 @@ class MinimalPublisher(Node):
 
     def start(self):
         screen = curses.initscr()
+        screen.refresh()
+
         curses.noecho()
+
         curses.cbreak()
-        screen.keypad(1)
+ #       screen.keypad(1)
         screen.refresh()
         end_of_node = self.t_speed.set_trtl_speed(screen, self.publisher_)
 
