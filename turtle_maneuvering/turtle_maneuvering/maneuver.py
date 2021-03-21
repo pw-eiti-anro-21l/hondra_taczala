@@ -11,6 +11,7 @@ class MinimalPublisher(Node):
 
     def __init__(self):
         super().__init__('minimal_publisher')
+        self.parameters = {}
         self.publisher_ = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
         self.subscription = self.create_subscription(
             String,
@@ -23,12 +24,12 @@ class MinimalPublisher(Node):
 
     def listener_callback(self, msg):
         params = {k: v for k, v in zip(['up', 'down', 'left', 'right'], msg.data)}
+        self.parameters = params
         self.t_speed.update(params)
         self.get_logger().info('I heard: "%s"' % msg.data)
 
     def start(self):
         screen = curses.initscr()
-        screen.refresh()
 
         curses.noecho()
 
@@ -40,11 +41,15 @@ class MinimalPublisher(Node):
         return end_of_node
 
     def timer_callback(self):
-        end = self.start()
-        if end:
-            curses.endwin()
-            self.destroy_node()
-            exit()
+        end = False
+        while not end:
+            #self.t_speed.update(self.parameters)
+            end = self.start()
+        
+        curses.endwin()
+        self.destroy_node()
+        exit()
+
     # def timer_callback(self):
     #     msg = String()
     #     msg.data = 'Hello World: %d' % self.i
