@@ -18,10 +18,8 @@ class MinimalPublisher(Node):
             self.listener_callback,
             10)
         self.subscription  # prevent unused variable warning
-
-        timer_period = 0.5  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
         self.t_speed = TurleSpeed()
+        self.timer_callback()
 
     def listener_callback(self, msg):
         params = {k: v for k, v in zip(['up', 'down', 'left', 'right'], msg.data)}
@@ -34,23 +32,16 @@ class MinimalPublisher(Node):
         curses.cbreak()
         screen.keypad(1)
         screen.refresh()
-        end_of_node = self.t_speed.set_trtl_speed(screen)
+        end_of_node = self.t_speed.set_trtl_speed(screen, self.publisher_)
 
         return end_of_node
 
     def timer_callback(self):
         end = self.start()
-        if not end:
-
-            msg = self.t_speed.get_trtl_speed()
-
-            self.publisher_.publish(msg)
-            # self.get_logger().info(f'Publishing: linear[{msg.linear.x}, \
-            #                     {msg.linear.y}, {msg.linear.z}], \
-            #                         angular[{msg.angular.x}, {msg.angular.y}, \
-            #                         {msg.angular.z}]')
-        else:
+        if end:
             curses.endwin()
+            self.destroy_node()
+            exit()
     # def timer_callback(self):
     #     msg = String()
     #     msg.data = 'Hello World: %d' % self.i
