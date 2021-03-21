@@ -12,10 +12,21 @@ class MinimalPublisher(Node):
     def __init__(self):
         super().__init__('minimal_publisher')
         self.publisher_ = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
+        self.subscription = self.create_subscription(
+            String,
+            '/keys',
+            self.listener_callback,
+            10)
+        self.subscription  # prevent unused variable warning
+
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.t_speed = TurleSpeed()
 
+    def listener_callback(self, msg):
+        params = {k: v for k, v in zip(['up', 'down', 'left', 'right'], msg.data)}
+        self.t_speed.update(params)
+        self.get_logger().info('I heard: "%s"' % msg.data)
 
     def start(self):
         screen = curses.initscr()
@@ -24,7 +35,7 @@ class MinimalPublisher(Node):
         screen.keypad(1)
         screen.refresh()
         end_of_node = self.t_speed.set_trtl_speed(screen)
-        
+
         return end_of_node
 
     def timer_callback(self):
@@ -33,15 +44,11 @@ class MinimalPublisher(Node):
 
             msg = self.t_speed.get_trtl_speed()
 
-
-
-
             self.publisher_.publish(msg)
-            print(msg.linear.x)
-            self.get_logger().info(f'Publishing: linear[{msg.linear.x}, \
-                                {msg.linear.y}, {msg.linear.z}], \
-                                    angular[{msg.angular.x}, {msg.angular.y}, \
-                                    {msg.angular.z}]')
+            # self.get_logger().info(f'Publishing: linear[{msg.linear.x}, \
+            #                     {msg.linear.y}, {msg.linear.z}], \
+            #                         angular[{msg.angular.x}, {msg.angular.y}, \
+            #                         {msg.angular.z}]')
         else:
             curses.endwin()
     # def timer_callback(self):

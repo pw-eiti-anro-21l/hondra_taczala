@@ -2,7 +2,6 @@ import curses
 from geometry_msgs.msg import Twist
 
 
-
 class TurleSpeed:
 
     def __init__(self):
@@ -16,6 +15,16 @@ class TurleSpeed:
         self.kl = 'a'
         self.vel_l = 1
         self.vel_a = 0.8
+
+    def update(self, params: dict):
+        for param in params.values():
+            if not isinstance(param, str) and len(param) != 1:
+                raise TypeError(f'{param} is not a char')
+
+        self.kf = params['up']
+        self.kb = params['down']
+        self.kr = params['right']
+        self.kl = params['left']
 
     def reset_trtl_speed(self):
         self.trtl_speed.linear.x = float(0)
