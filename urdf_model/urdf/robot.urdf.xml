@@ -1,0 +1,12 @@
+<robot name="RobotModel">
+<link name="part1">
+        <visual>
+            <origin xyz="0 0 0.2" />
+            <geometry>
+            <box size="2 2 0.4" />
+            </geometry>
+            <material name="green">
+            <color rgba="0 1 0 1" />
+            </material>
+        </visual>
+        </link>
