@@ -1,0 +1,6 @@
+name,xyz,geometry_type,geometry_params
+link1,0 0 0.2,box,2 2 0.4
+link2,0 0 0,sphere,0.2
+link3,0 0 0,cylinder,0.05 1
+link4,0 0 0.2,cylinder,0.05 0.7
+link5,0 0 0.2,sphere,0.05
