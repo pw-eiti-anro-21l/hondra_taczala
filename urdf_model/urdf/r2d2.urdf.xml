@@ -1,4 +1,3 @@
-
 <robot name="RobotModel">
 
 <link name="part1">
@@ -13,17 +12,17 @@
   </visual>
 </link>
 <joint name="joint_12" type="revolute">
-  <origin xyz="0 0 0.6" />
+  <origin xyz="a 0 d" rpy="alfa 0 0"/>
   <parent link="part1"/>
   <child link="part2"/>
-  <axis xyz="0 0 1" />
+  <axis xyz="0 1 0" />
   <limit upper="0" lower="0.0" effort="10" velocity="10" />
 </joint>
 <link name="part2">
   <visual>
     <origin xyz="0 0 0" />
     <geometry>
-      <sphere radius="0.15"/>
+      <sphere radius="0.20"/>
     </geometry>
     <material name="green">
       <color rgba="0 1 0 1" />
@@ -31,15 +30,15 @@
   </visual>
 </link>
 <joint name="joint_23" type="revolute">
-  <origin xyz="0 0 0.6" />
+  <origin xyz="0 0 0.2" />
   <parent link="part2"/>
   <child link="part3"/>
-  <axis xyz="0 0 1" />
+  <axis xyz="1 0 0" />
   <limit upper="0" lower="0.0" effort="10" velocity="10" />
 </joint>
 <link name="part3">
   <visual>
-    <origin xyz="0 0 0.2" />
+    <origin xyz="0 0 0" />
     <geometry>
       <cylinder radius="0.05" length="1" />
     </geometry>

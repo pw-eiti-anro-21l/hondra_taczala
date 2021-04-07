@@ -24,9 +24,9 @@ class StatePublisher(Node):
     loop_rate = self.create_rate(30)
 
     # robot state
-    self.theta_1 = 0.15
-    self.theta_2 = 10.30
-    self.theta_3 = 20.60
+    self.theta_1 = 3.14/2
+    self.theta_2 = 3.14/2
+    self.theta_3 = 0.0
     # message declarations
     odom_trans = TransformStamped()
     odom_trans.header.frame_id = 'odom'
@@ -51,7 +51,7 @@ class StatePublisher(Node):
           odom_trans.transform.translation.y = 0.0
           odom_trans.transform.translation.z = 0.0
           odom_trans.transform.rotation = \
-            euler_to_quaternion(0, 0, self.theta_1 + self.theta_2/2) # roll,pitch,yaw
+            euler_to_quaternion(0, 0, 0/2) # roll,pitch,yaw
 
 
           self.joint_pub.publish(joint_state)
