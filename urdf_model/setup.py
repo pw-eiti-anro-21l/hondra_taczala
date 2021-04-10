@@ -11,7 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools', 'pandas'],
     zip_safe=True,
     maintainer='piotr',
     maintainer_email='piotrhondra@gmail.com',
@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'urdf_maker = urdf_model.urdf_maker:main'
         ],
     },
 )

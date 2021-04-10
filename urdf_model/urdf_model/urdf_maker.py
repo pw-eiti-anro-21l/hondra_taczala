@@ -23,7 +23,7 @@ class LinksHandler:
         for _, row in self.link_params.iterrows():
             a = f'''<link name="{row['name']}">
     <visual>
-        <origin xyz="{row['xyz']}" />
+        <origin xyz="{row['origin_xyz']}" rpy="{row['origin_rpy']}"/>
         <geometry>
         <{self.get_geometry_type(row['geometry_type'],
                 row['geometry_params'])}/>
@@ -39,16 +39,44 @@ class LinksHandler:
 
 class JointsHandler:
     def __init__(self):
-        pass
+        self.__dh_params = pd.read_csv('urdf_model/resource/dh.csv')
+        self.__joint_params = pd.read_csv('urdf_model/resource/joints.csv')
 
-    def generate_joints(self):
-        f"""<joint name="joint_12" type="revolute">
-  <origin xyz="a 0 d" rpy="alfa 0 0"/>
+    @property
+    def dh_params(self):
+        return self.__dh_params
+
+    @property
+    def join_params(self):
+        return self.__joint_params
+
+    def generate_joints_lines(self) -> list:
+        joint_lines = []
+        a = f"""<joint name="joint_12" type="prismatic">
+  <origin xyz="{self.dh_params.at[2, 'a']} 0 {self.dh_params.at[0, 'd']}" rpy="0 0 0"/>
   <parent link="part1"/>
   <child link="part2"/>
   <axis xyz="0 1 0" />
   <limit upper="0" lower="0.0" effort="10" velocity="10" />
 </joint>"""
+        joint_lines.append(a)
+        for _, row in self.join_params.iterrows():
+            name = row['name']
+            b = f'''<joint name="{name}" type="{row['type']}">
+  <origin xyz="{row['origin_xyz']}" />
+  <parent link="{self.get_parent(name)}"/>
+  <child link="{self.get_child(name)}"/>
+  <axis xyz="{row['axis_xyz']}" />
+  <limit upper="0" lower="0.0" effort="10" velocity="10" />
+</joint>'''
+            joint_lines.append(b)
+        return joint_lines
+
+    def get_parent(self, name: str) -> str:
+        return 'link' + name[5:6]  #  'joint23'[5:6] = 2
+
+    def get_child(self, name: str) -> str:
+        return 'link' + name[6:7]  #  'joint23'[6:7] = 3
 
 
 class UrdfWriter:
@@ -65,14 +93,10 @@ class UrdfWriter:
 
 class UrdfMaker:
     def __init__(self):
-        self.__dh_params = pd.read_csv('urdf_model/resource/dh.csv')
         self.__link_lines = LinksHandler().generate_link_lines()
+        self.__joint_lines = JointsHandler().generate_joints_lines()
         self.__lines = []
         self.writeLines()
-
-    @property
-    def dh_params(self):
-        return self.__dh_params
 
     @property
     def lines(self):
@@ -82,17 +106,23 @@ class UrdfMaker:
     def link_lines(self):
         return self.__link_lines
 
+    @property
+    def joint_lines(self):
+        return self.__joint_lines
+
     def writeLines(self):
         self.lines.append('<robot name="RobotModel">')
         self.write_links()
+        self.write_joints()
         self.lines.append('</robot>')
 
     def write_links(self):
         for link in self.link_lines:
             self.lines.append(link)
 
-    def joint(self):
-        pass
+    def write_joints(self):
+        for joint in self.joint_lines:
+            self.lines.append(joint)
 
 
 if __name__ == '__main__':
