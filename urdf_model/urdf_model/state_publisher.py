@@ -218,11 +218,15 @@ class StatePublisher(Node):
           self.odom_trans.transform.translation.y = 0.0
           self.odom_trans.transform.translation.z = 0.0
           self.odom_trans.transform.rotation = \
-            euler_to_quaternion(0.0, 0.0, 0.0/2) # roll,pitch,yaw
+            euler_to_quaternion(0.0, 0.0, 0.0) # roll,pitch,yaw
 
 
           self.joint_pub.publish(self.joint_state)
           self.broadcaster.sendTransform(self.odom_trans)
+
+          self.theta_2 += 0.001 % (2*pi)
+
+          self.theta_4 += 0.01 % (2*pi)
 
           # loop_rate.sleep()
     except KeyboardInterrupt:
