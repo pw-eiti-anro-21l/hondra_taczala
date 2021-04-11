@@ -57,11 +57,11 @@ def generate_launch_description():
           name='state_publisher',
           output='screen',
           parameters=[params_path]),
-    #   Node(
-    #       package='rviz2',
-    #       executable='rviz2',
-    #       name='robot',
-    #       output='screen',
-    #       parameters=[{'use_sim_time': use_sim_time,}],
-    #       arguments=['-d',rviz_path])
+      Node(
+          package='rviz2',
+          executable='rviz2',
+          name='robot',
+          output='screen',
+          parameters=[{'use_sim_time': use_sim_time,}],
+          arguments=['-d',rviz_path]),
   ])
