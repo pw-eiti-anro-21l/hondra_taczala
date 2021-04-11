@@ -1,0 +1,5 @@
+name,origin_xyz,origin_rpy,geometry_type,geometry_params
+part1,0 0 0.2,0 0 0,box,2 2 0.4
+part2,0 0 -0.5,0 0 0,cylinder,0.05 1
+part3,0.5 0 0,0 -1.57 0,cylinder,0.05 1
+part4,0 0 0.05,0 0 0,box,0.1 0.1 0.1
