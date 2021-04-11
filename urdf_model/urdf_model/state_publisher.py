@@ -34,15 +34,7 @@ def createUrdf(params):
     d_table.append(params[f"d{i+1}"])
     alpha_table.append(params[f'alpha{i+1}'])
     theta_table.append(params[f"theta{i+1}"])
-    print(urdf_path)
-
-    print(urdf_path)
-
-    print(urdf_path)
-
-    print(urdf_path)
-
-    print(urdf_path)
+    
 
 
   with open(urdf_path,'w') as file:
@@ -67,6 +59,7 @@ def createUrdf(params):
       d = d_table[i]
       alpha = alpha_table[i]
       theta = theta_table[i]
+
 
       #ustawienie parametrów
       if a!=0:
@@ -116,7 +109,7 @@ def createUrdf(params):
           )
     file.write(f"""
 <joint name="joint_45" type="revolute">
-<origin xyz="0 0 0" rpy="0 0 0"/>
+<origin xyz="0 0 0" rpy="0 0 {params["theta4"]}"/>
 <parent link="part4"/>
 <child link="part5"/>
 <axis xyz="0 0 1" />
@@ -181,7 +174,9 @@ class StatePublisher(Node):
     self.params['alpha3'] = self.get_parameter('alpha3')._value
     self.params['theta1'] = self.get_parameter('theta1')._value
     self.params['theta2'] = self.get_parameter('theta2')._value
-    self.params['theta3'] = self.get_parameter('theta3')._value
+    self.params['theta3'] = 0.0
+    self.params['theta4'] = self.get_parameter('theta3')._value
+
     createUrdf(self.params)
     qos_profile = QoSProfile(depth=10)
     self.joint_pub = self.create_publisher(JointState, 'joint_states', qos_profile)
@@ -194,9 +189,9 @@ class StatePublisher(Node):
 
 
     # robot state
-    self.theta_1 = 3.14/2
+    self.theta_1 = 3.14/2#tego nie zmieniamy
     self.theta_2 = 0.0
-    self.theta_3 = 0.0
+    self.theta_3 = 0.0#tego nie zmieniamy
     self.theta_4 = -2.14/2
 
     # message declarations

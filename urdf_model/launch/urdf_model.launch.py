@@ -55,8 +55,8 @@ def generate_launch_description():
           package='urdf_model',
           executable='state_publisher',
           name='state_publisher',
-          output='screen',),
-        #   parameters=["./urdf_model/resource/dhparams.yaml"]),
+          output='screen',
+          parameters=[params_path]),
     #   Node(
     #       package='rviz2',
     #       executable='rviz2',
