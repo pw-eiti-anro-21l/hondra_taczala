@@ -40,19 +40,19 @@ def createUrdf(params):
   with open(urdf_path,'w') as file:
     file.write('<robot name="robot_lab2">\n')   
     #napisanie podstawy pod robota
-    file.write("""
-<link name="part1">
-<visual>
-<origin xyz="0 0 0.2"/>
-<geometry>
-<box size="2 2 0.4"/>
-</geometry>
-<material name="green">
-<color rgba="0 1 0 1"/>
-</material>
-</visual>
-</link>
-""")
+#     file.write("""
+# <link name="part1">
+# <visual>
+# <origin xyz="0 0 -0.1"/>
+# <geometry>
+# <box size="2 2 0.1"/>
+# </geometry>
+# <material name="green">
+# <color rgba="0 1 0 1"/>
+# </material>
+# </visual>
+# </link>
+# """)
     for i, cos in enumerate(a_table):
 
       a = a_table[i]
@@ -65,9 +65,11 @@ def createUrdf(params):
       if a!=0:
           joint_type = "revolute"
           geometry_type_ = "cylinder"
+          limits = 'upper="1.57" lower="-1.57" effort="10" velocity="10"'
       elif d != 0:
               joint_type = "prismatic"
               geometry_type_ = "cylinder"
+              limits = f'upper="{d}" lower="0" effort="10" velocity="10"'
       else:
           joint_type = "revolute"
           geometry_type_ = "cylinder"
@@ -78,25 +80,10 @@ def createUrdf(params):
           ang = math.acos(d/len_)
       else:
           ang = 0
-      if i==0:
-        d=d-1.2
-      #napisanie jointa
       file.write(f"""
-<joint name="joint_{str(i+1)+str(i+2)}" type="{joint_type}">
-<origin xyz="{a} 0 {d}" rpy="{alpha} 0 {theta}"/>
-<parent link="part{i+1}"/>
-<child link="part{i+2}"/>
-<axis xyz="0 0 1" />
-<limit upper="3.14" lower="-3.14" effort="10" velocity="10" />
-</joint>
-""")
-          #napisanie części głównych
-      if i==0:
-        d+=1.2
-      file.write(f"""
-<link name="part{i+2}">
+<link name="part{i+1}">
   <visual>
-      <origin xyz="{(-1)*a/2} 0 {-d/2}" rpy="0 {ang} 0"/>
+      <origin xyz="{len_/2 if a!=0 else 0} 0 {0 if i!=0 else len_/2}" rpy="0 {1.57 if a!=0 else 0} 0"/>
       <geometry>
       <{geometry_type_} {geometry_parameters}/>
       </geometry>
@@ -105,26 +92,29 @@ def createUrdf(params):
       </material>
   </visual>
 </link>
-  """
-          )
-    file.write(f"""
-<joint name="joint_45" type="revolute">
-<origin xyz="0 0 0" rpy="0 0 {params["theta4"]}"/>
-<parent link="part4"/>
-<child link="part5"/>
+  """)
+      file.write(f"""
+<joint name="joint_{str(i+1)+str(i+2)}" type="{joint_type}">
+<origin xyz="{a} 0 0" rpy="{alpha} 0 {theta}"/>
+<parent link="part{i+1}"/>
+<child link="part{i+2}"/>
 <axis xyz="0 0 1" />
 <limit upper="3.14" lower="-3.14" effort="10" velocity="10" />
-</joint>   
-<link name="part5">
-  <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-      <box size="0.2 0.2 0.2"/>
-      </geometry>
-      <material name="green">
-      <color rgba="0 1 0 1" />
-      </material>
-  </visual>
+</joint>
+""")
+          #napisanie części głównych
+
+    file.write("""
+<link name="part4">
+<visual>
+<origin xyz="0.3 0 0"/>
+<geometry>
+<box size="0.6 0.2 0.2"/>
+</geometry>
+<material name="green">
+<color rgba="0 1 0 1"/>
+</material>
+</visual>
 </link>
 """)
     file.write('</robot>\n')
@@ -147,7 +137,7 @@ class StatePublisher(Node):
         ('a1', 0.0),
         ('a2', 0.0),
         ('a3', 1.0),
-        ('d1', 1.0),
+        ('d1', 0.0),
         ('d2', 0.0),
         ('d3', 0.0),
         ('alpha1', 0.0),
@@ -174,8 +164,7 @@ class StatePublisher(Node):
     self.params['alpha3'] = self.get_parameter('alpha3')._value
     self.params['theta1'] = self.get_parameter('theta1')._value
     self.params['theta2'] = self.get_parameter('theta2')._value
-    self.params['theta3'] = 0.0
-    self.params['theta4'] = self.get_parameter('theta3')._value
+    self.params['theta3'] = self.get_parameter('theta3')._value
 
     createUrdf(self.params)
     qos_profile = QoSProfile(depth=10)
@@ -189,10 +178,10 @@ class StatePublisher(Node):
 
 
     # robot state
-    self.theta_1 = 3.14/2#tego nie zmieniamy
+    self.d_1 = 0.0
     self.theta_2 = 0.0
     self.theta_3 = 0.0#tego nie zmieniamy
-    self.theta_4 = -2.14/2
+
 
     # message declarations
     self.odom_trans = TransformStamped()
@@ -207,8 +196,8 @@ class StatePublisher(Node):
           # update joint_state
           now = self.get_clock().now()
           self.joint_state.header.stamp = now.to_msg()
-          self.joint_state.name = ['joint_12', 'joint_23', 'joint_34', 'joint_45']
-          self.joint_state.position = [self.theta_1, self.theta_2, self.theta_3, self.theta_4]
+          self.joint_state.name = ['joint_12', 'joint_23', 'joint_34']
+          self.joint_state.position = [self.d_1, self.theta_2, self.theta_3]
 
           # update transform
           # (moving in a circle with radius=2)
@@ -223,12 +212,14 @@ class StatePublisher(Node):
 
           self.joint_pub.publish(self.joint_state)
           self.broadcaster.sendTransform(self.odom_trans)
+          if self.d_1>2:
+            self.d_1=0.5
+          self.d_1 += 0.001 
+          self.theta_2 += 0.01 % (2*pi)
 
-          self.theta_2 += 0.001 % (2*pi)
+          self.theta_3 += 0.1 % (2*pi)
 
-          self.theta_4 += 0.01 % (2*pi)
-
-          # loop_rate.sleep()
+          loop_rate.sleep()
     except KeyboardInterrupt:
       pass
 
