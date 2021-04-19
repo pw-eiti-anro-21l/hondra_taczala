@@ -1,0 +1,4 @@
+name,type,origin_xyz,axis_xyz
+joint23,revolute,0 0 0.2,1 0 0
+joint34,revolute,0 0 0.6,0 0 1
+joint45,fixed,0 0 0.6,0 0 1

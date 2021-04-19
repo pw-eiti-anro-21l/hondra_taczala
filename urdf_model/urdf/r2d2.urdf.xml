@@ -1,0 +1,68 @@
+<robot name="RobotModel">
+
+<link name="part1">
+  <visual>
+    <origin xyz="0 0 0.2" />
+    <geometry>
+      <box size="2 2 0.4" />
+    </geometry>
+    <material name="green">
+      <color rgba="0 1 0 1" />
+    </material>
+  </visual>
+</link>
+<joint name="joint_12" type="prismatic">
+  <origin xyz="0 0 1.0" rpy="0 0 0"/>
+  <parent link="part1"/>
+  <child link="part2"/>
+  <axis xyz="0 0 1" />
+  <limit upper="0" lower="0.0" effort="10" velocity="10" />
+</joint>
+<link name="part2">
+  <visual>
+    <origin xyz="0 0 -0.5" rpy="0 0 0"/>
+    <geometry>
+      <cylinder radius="0.05" length="1"/>
+    </geometry>
+    <material name="green">
+      <color rgba="0 1 0 1" />
+    </material>
+  </visual>
+</link>
+<joint name="joint_23" type="revolute">
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <parent link="part2"/>
+  <child link="part3"/>
+  <axis xyz="0 0 1" />
+  <limit upper="0" lower="0.0" effort="10" velocity="10" />
+</joint>
+<link name="part3">
+  <visual>
+    <origin xyz="0.5 0 0" rpy="0 -1.57 0"/>
+    <geometry>
+      <cylinder radius="0.05" length="1" />
+    </geometry>
+    <material name="green">
+      <color rgba="0 1 0 1" />
+    </material>
+  </visual>
+</link>
+<joint name="joint_34" type="revolute">
+  <origin xyz="1 0 0" rpy="1.57 0 0"/>
+  <parent link="part3"/>
+  <child link="part4"/>
+  <axis xyz="0 1 0" />
+  <limit upper="0.0" lower="3.14" effort="10" velocity="10" />
+</joint>
+<link name="part4">
+  <visual>
+    <origin xyz="0 0 0.05" />
+    <geometry>
+      <box size="0.1 0.1 0.1"  />
+    </geometry>
+    <material name="green">
+      <color rgba="0 1 0 1" />
+    </material>
+  </visual>
+</link>
+</robot>
