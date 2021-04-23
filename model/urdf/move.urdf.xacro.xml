@@ -70,7 +70,7 @@
           <axis xyz="0 0 1"/>
 
           </joint>
-  <joint name="second_to_tool" type="continuous">
+  <joint name="second_to_tool" type="revolute">
           <parent link="second_link"/>
           <child link="tool"/>
           <origin xyz="${params['a']} 0 0" rpy="0 0 ${params['th2']}"/>
