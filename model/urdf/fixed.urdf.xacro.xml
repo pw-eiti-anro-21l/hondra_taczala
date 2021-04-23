@@ -34,7 +34,7 @@
   
   <link name="second_link">
         <visual>
-        <origin xyz="0.2 0 ${params['a']/2 + 0.1}" rpy="0 0 0"/>
+        <origin xyz="${params['a']/2} 0 0" rpy="0 1.57 0"/>
         <geometry>
           <cylinder radius="0.1" length="${params['a']}"/>
         </geometry>
@@ -43,9 +43,9 @@
   
   <link name="tool">
         <visual>
-        <origin xyz="0 0 0.2" rpy="0 0 0"/>
+        <origin xyz="0.25 0 0" rpy="0 0 0"/>
         <geometry>
-          <box size="0.1 .1 .1"/>
+          <box size="0.5 .1 .1"/>
         </geometry>
         </visual>
     </link>
@@ -58,18 +58,19 @@
       <joint name="first_to_translator" type="fixed">
           <parent link="first_link"/>
           <child link="translator"/>
-            <origin rpy="0 -1.57 0"/>
+          <origin  xyz="0 0 0.2" rpy="0 0 0"/>
       </joint>
   
   <joint name="translator_to_second" type="fixed">
           <parent link="translator"/>
           <child link="second_link"/>
-            <origin rpy="${params['th1']} 0 0"/>
+          <origin rpy="0 0 ${params['th1']}"/>
+          
       </joint>
   <joint name="second_to_tool" type="fixed">
           <parent link="second_link"/>
           <child link="tool"/>
-          <origin xyz="0 0 ${params['a'] + 0.1}" rpy="${params['th2']} 1.57 0"/>
+          <origin xyz="${params['a']} 0 0" rpy="0 0 ${params['th2']}"/>
           <axis xyz="0 0 1"/>
       </joint>
   </robot>
