@@ -1,7 +1,6 @@
 import pandas as pd
 import yaml
 import os
-from ament_index_python.packages import get_package_share_directory
 
 
 # def readYAMLfile():
@@ -26,7 +25,7 @@ from ament_index_python.packages import get_package_share_directory
 # 	return params
 
 def writeYamlFile():
-    with open('model_link_params.yaml', 'r') as file:
+    with open('urdf/model_link_params.yaml', 'r') as file:
         data = yaml.load(file, Loader=yaml.FullLoader)
 
     params = dict(
@@ -34,12 +33,10 @@ def writeYamlFile():
 	boxY = float(data['box_y']),
 	boxZ = float(data['box_z']),
 	cylinder_radius = float(data['cylinder_radius']),
-	translator_z = float(data['translator_z']),
 	pi = float(data['pi']),
 	tool_x = float(data['tool_x']),
 	tool_y = float(data['tool_y']),
 	tool_z = float(data['tool_z']),
-	link_offset = float(data['link_offset']),
 	d = float(data['d']),
 	a = float(data['a'])
 )
@@ -57,12 +54,15 @@ def writeYamlFile():
 		tool_x = float(data['tool_x']),
 		tool_y = float(data['tool_y']),
 		tool_z = float(data['tool_z']),
-		offset0_2 = float(0.2),
+		first_to_translator_z = float(float(data['cylinder_radius'])+float(data['box_z'])),
 		half_pi = float(float(data['pi'])/2),
-		a = float(data['a'])
+		a = float(data['a']),
+		a_half = float(float(data['a']/2)),
+		tool_origin_x = float(float(data['tool_x'])/2),
+		joint_upper_limit = float(float(data['d']/2+float(data['box_z']))-2*float(data['box_z']))
 	)
 
-    with open('params_to_write.yaml', 'w') as file:
+    with open('urdf/model.yaml', 'w') as file:
         documents = yaml.dump(params_to_write, file)
 
 if __name__ == "__main__":
