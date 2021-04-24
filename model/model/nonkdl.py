@@ -91,7 +91,7 @@ class nonKDL_D(Node):
         quat = R.from_matrix(itemPosition[:3, :3]).as_quat()
 
         pose_publisher = self.create_publisher(
-            PoseStamped, '/pose_stamped_KDL_version', QoSProfile(depth=10))
+            PoseStamped, '/pose_stamped_nonKDL_version', QoSProfile(depth=10))
         pose = PoseStamped()
         pose.header.frame_id = "base_link"
 

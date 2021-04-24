@@ -5,43 +5,39 @@ from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Quaternion, PoseStamped
 from rclpy.qos import QoSProfile
 
+import yaml
 
 
 class KDL_D(Node):
     def __init__(self):
-            super().__init__('KDL_D')
-            self.subscription = self.create_subscription(
-                JointState,
-                'joint_states',
-                self.listener_callback,
-                10)
-            self.subscription  # prevent unused variable warning
+        super().__init__('KDL_D')
+        self.subscription = self.create_subscription(
+            JointState,
+            'joint_states',
+            self.listener_callback,
+            10)
+        self.subscription  # prevent unused variable warning
+        file_name = 'model_link_params.yaml'
+        self.readParams(file_name)
+
+    def readParams(self, f_name):
+        with open(f'urdf/{f_name}', 'r') as file:
+            params = yaml.load(file, Loader=yaml.FullLoader)
+            self.a = float(params['a'])
+            self.box_height = float(params['box_z'])
+            self.cylinder_radius = float(params['cylinder_radius'])
+            self.tool_length = float(params['tool_x'])
+            self.d = 0.0
+            self.theta1 = 0.0
+            self.theta2 = 0.0
 
     def get_item_position(self):
-        # chain = PyKDL.Chain()
-        # frame1 = PyKDL.Frame(PyKDL.Rotation.RPY(0,0,0), PyKDL.Vector(0, 0, self.d))
-        # joint1 = PyKDL.Joint()
-        # chain.addSegment(PyKDL.Segment(joint1,frame1))
-        # frame2 = PyKDL.Frame(PyKDL.Rotation.RPY(0,0,self.theta1), PyKDL.Vector(0, 0, 0))
-        # joint2 = PyKDL.Joint()
-        # chain.addSegment(PyKDL.Segment(joint2,frame2))
 
-        # frame3 = PyKDL.Frame(PyKDL.Rotation.RPY(0,0,self.theta2), PyKDL.Vector(2, 0, 0))
-        # joint3 = PyKDL.Joint()
-        # chain.addSegment(PyKDL.Segment(joint3,frame3))
-        
-        # fk=PyKDL.ChainFkSolverPos_recursive(chain)
-        # finalFrame=PyKDL.Frame()
-        # arr = PyKDL.JntArray(3)
-        # arr[0] = self.d
-        # arr[1] = self.theta1
-        # arr[2] = self.theta2
-        a = 3
-        theta_z_p = 0
-        frame1 = PyKDL.Frame(PyKDL.Rotation.RPY(0,0,0), PyKDL.Vector(0, 0, self.d+0.2))
+
+        frame1 = PyKDL.Frame(PyKDL.Rotation.RPY(0,0,0), PyKDL.Vector(0, 0, self.d+self.box_height+self.cylinder_radius))
         frame2 = PyKDL.Frame(PyKDL.Rotation.RPY(0,0,self.theta1), PyKDL.Vector(0, 0, 0))
-        frame3 = PyKDL.Frame(PyKDL.Rotation.RPY(0,0,self.theta2), PyKDL.Vector(a, 0, 0))
-        tool = PyKDL.Frame(PyKDL.Rotation.RPY(0,0,0), PyKDL.Vector(0.5, 0, 0))
+        frame3 = PyKDL.Frame(PyKDL.Rotation.RPY(0,0,self.theta2), PyKDL.Vector(self.a, 0, 0))
+        tool = PyKDL.Frame(PyKDL.Rotation.RPY(0,0,0), PyKDL.Vector(self.tool_length, 0, 0))
 
         allFramesInOne = frame1*frame2*frame3*tool
 
@@ -71,7 +67,6 @@ class KDL_D(Node):
         pose.pose.position.x = xyz[0]
         pose.pose.position.y = xyz[1]
         pose.pose.position.z = xyz[2]
-        # pose.pose.orientation = Quaternion(x=0.0,y=0.0,z=0.0,w=0.0)
         pose.pose.orientation = Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3])
 
         pose_publisher.publish(pose)
