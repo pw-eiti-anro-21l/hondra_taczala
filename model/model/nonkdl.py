@@ -8,6 +8,8 @@ import numpy as np
 from math import sin, cos
 from scipy.spatial.transform import Rotation as R
 
+import yaml
+
 
 class nonKDL_D(Node):
     def __init__(self):
@@ -18,6 +20,16 @@ class nonKDL_D(Node):
             self.listener_callback,
             10)
         self.subscription  # prevent unused variable warning
+        file_name = 'model_link_params.yaml'
+        self.readParams(file_name)
+
+    def readParams(self, f_name):
+        with open(f'urdf/{f_name}', 'r') as file:
+            params = yaml.load(file, Loader=yaml.FullLoader)
+            self.a = float(params['a'])
+            self.box_height = float(params['box_z'])
+            self.cylinder_radius = float(params['cylinder_radius'])
+            self.tool_length = float(params['tool_x'])
 
     def rotX(self, alpha) -> np.array:
         return np.array([[1, 0, 0, 0],
@@ -48,14 +60,13 @@ class nonKDL_D(Node):
                          ])
 
     def get_item_position(self) -> np.array:
-        a = 3
         dh = [[0, self.d, 0, 0],
               [0, 0, 0, self.theta1],
-              [a, 0, 0, self.theta2]]
-        th = 0
+              [self.a, 0, 0, self.theta2]]
+        align_z = self.box_height + self.cylinder_radius
         transformation = np.array([[1, 0, 0, 0],
                                    [0, 1, 0, 0],
-                                   [0, 0, 1, 0.2],
+                                   [0, 0, 1, align_z],
                                    [0, 0, 0, 1]
                                    ])
         for row in dh:
@@ -67,6 +78,7 @@ class nonKDL_D(Node):
 
             frame = rotationX @ translationX @ rotationZ @ translationZ
             transformation = transformation @ frame
+        transformation = transformation @ self.transX(self.tool_length)
         return transformation
 
     def listener_callback(self, msg):
