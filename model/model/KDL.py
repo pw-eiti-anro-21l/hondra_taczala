@@ -4,6 +4,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Quaternion, PoseStamped
 from rclpy.qos import QoSProfile
+from rclpy.clock import ROSClock
 
 import yaml
 
@@ -47,10 +48,6 @@ class KDL_D(Node):
         return allFramesInOne
 
 
-		
-
-        
-
 
     def listener_callback(self, msg):
         self.d = msg.position[0]
@@ -64,6 +61,8 @@ class KDL_D(Node):
 
         pose_publisher = self.create_publisher(PoseStamped, '/pose_stamped_KDL_version', QoSProfile(depth=10))
         pose = PoseStamped()
+        now = self.get_clock().now()
+        pose.header.stamp = ROSClock().now().to_msg()
         pose.header.frame_id = "base_link"
 
         #na podstawie dokumentacji PoseStamped:
