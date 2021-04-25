@@ -7,6 +7,8 @@ from rclpy.qos import QoSProfile
 
 import yaml
 
+import os
+from ament_index_python.packages import get_package_share_directory
 
 class KDL_D(Node):
     def __init__(self):
@@ -21,7 +23,8 @@ class KDL_D(Node):
         self.readParams(file_name)
 
     def readParams(self, f_name):
-        with open(f'urdf/{f_name}', 'r') as file:
+        p = os.path.join(get_package_share_directory('model'), f_name)
+        with open(p, 'r') as file:
             params = yaml.load(file, Loader=yaml.FullLoader)
             self.a = float(params['a'])
             self.box_height = float(params['box_z'])
