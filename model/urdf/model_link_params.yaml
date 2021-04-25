@@ -6,5 +6,5 @@ pi: 1.57
 tool_x: 0.5
 tool_y: 0.1
 tool_z: 0.1
-d: 3
-a: 2
+d: 2
+a: 3

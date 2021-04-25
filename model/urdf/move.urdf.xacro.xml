@@ -1,7 +1,6 @@
 <?xml version="1.0" ?>
 <robot name="robot_lab2" xmlns:xacro="http://www.ros.org/wiki/xacro">
 <xacro:property name="p" value="${load_yaml('model.yaml')}"/>
-
     <link name="base_link">
         <visual>
         <origin xyz="0 0 ${p['half_box_height']}" />
@@ -57,7 +56,7 @@
           <child link="translator"/>
           <origin xyz="0 0 ${p['first_to_translator_z']}" rpy="0 0 0"/>
           <axis xyz="0 0 1"/>
-          <limit upper="${p['joint_upper_limit']}" lower="0" effort="20" velocity="0"/>
+          <limit upper="${p['d']}" lower="0" effort="20" velocity="0"/>
       </joint>
   
   <joint name="translator_to_second" type="continuous">
