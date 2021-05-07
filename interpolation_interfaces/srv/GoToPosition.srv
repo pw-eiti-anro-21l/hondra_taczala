@@ -1,0 +1,6 @@
+float32 translation
+float32 first_rotation
+float32 second_rotation
+float32 time
+---
+string confirmation

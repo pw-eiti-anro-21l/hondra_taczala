@@ -27,6 +27,8 @@ setup(
         'console_scripts': [
             'KDL = model.KDL:main',
             'nonKDL = model.nonkdl:main',
+            'service = model.service:main',
+            'client = model.client:main',
         ],
     },
 )
