@@ -1,9 +1,8 @@
 import sys
 
 import rclpy
-from rclpy.node import Node
-
 from interpolation_interfaces.srv import GoToPosition
+from rclpy.node import Node
 
 
 class Client(Node):

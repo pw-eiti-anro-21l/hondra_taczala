@@ -1,3 +1,5 @@
+import time
+
 import rclpy
 from interpolation_interfaces.srv import GoToPosition
 from rclpy.clock import ROSClock
@@ -11,23 +13,40 @@ class Service(Node):
         super().__init__('interpolation_service')
         self.srv = self.create_service(GoToPosition, 'jint_control_service',
                                        self.interpolation_service_callback)
+        self.setup_publisher()
 
-    def publisher(self):
+    def setup_publisher(self) -> None:
         self.joint_publisher = self.create_publisher(
             JointState, 'joint_states', QoSProfile(depth=10))
-        joint_state = JointState()
+        self.joint_state = JointState()
+        self.joint_state.name = ['first_to_translator',
+                                 'translator_to_second', 'second_to_tool']
+
+    def interpolate(self, end_pos, time, T, iteration, start_pos=0) -> float:
+        return start_pos + (end_pos-start_pos)/time*T*iteration
+
+    def publish_pos(self, position: list) -> None:
         now = self.get_clock().now()
-        joint_state.header.stamp = now.to_msg()
-        joint_state.name = ['a', 'b', 'c']
-        joint_state.position = [10.0, 10.0, 10.0]
-        self.joint_publisher.publish(joint_state)
+        self.joint_state.header.stamp = now.to_msg()
+        self.joint_state.position = position
+        self.joint_publisher.publish(self.joint_state)
 
     def interpolation_service_callback(self, req, res):
+        T = 0.1
         res.confirmation = 'confirmed'
         self.get_logger().info(f't:{req.translation},\
              r1:{req.first_rotation}, r2:{req.second_rotation}, \
                  time:{req.time}')
-        self.publisher()
+        
+        end_positions = [req.translation, req.first_rotation,
+                         req.second_rotation]
+        steps = int(req.time/T) + 1
+        for k in range(1, steps):
+            positions = [self.interpolate(end, req.time, T, k)
+                         for end in end_positions]
+            self.publish_pos(positions)
+            time.sleep(T)
+
         return res
 
 
