@@ -1,4 +1,5 @@
 import sys
+from math import pi
 
 import rclpy
 from interpolation_interfaces.srv import GoToPosition
@@ -14,11 +15,35 @@ class Client(Node):
         self.req = GoToPosition.Request()
 
     def send_request(self):
-        self.req.translation = float(sys.argv[1])
-        self.req.first_rotation = float(sys.argv[2])
-        self.req.second_rotation = float(sys.argv[3])
-        self.req.time = float(sys.argv[4])
-
+        translation = float(sys.argv[1])
+        first_rotation = float(sys.argv[2])
+        second_rotation = float(sys.argv[3])
+        time = float(sys.argv[4])
+        interpolation_type = str(sys.argv[5])
+        try:
+            if translation > 0 and translation < 1:
+                self.req.translation = translation
+            else:
+                raise ValueError()
+            if abs(first_rotation) <= pi:
+                self.req.first_rotation = first_rotation
+            else:
+                raise ValueError()
+            if abs(second_rotation) <= pi/2:
+                self.req.second_rotation = second_rotation
+            else:
+                raise ValueError()
+            if time > 0:
+                self.req.time = time
+            else:
+                raise ValueError()
+            if (interpolation_type == 'linear' or
+                    interpolation_type == 'polynomial'):
+                self.req.interpolation_type = interpolation_type
+            else:
+                raise ValueError()
+        except ValueError:
+            raise Exception('Wrong parameters')
         self.future = self.cli.call_async(self.req)
 
 
@@ -26,6 +51,7 @@ def main(args=None):
     rclpy.init(args=args)
     interpolation_client = Client()
     interpolation_client.send_request()
+    interpolation_client.get_logger().info('Interpolating ...')
 
     while rclpy.ok():
         rclpy.spin_once(interpolation_client)
@@ -37,10 +63,7 @@ def main(args=None):
                     f'Service call failed {e}')
             else:
                 interpolation_client.get_logger().info(
-                    f'Client obtaied {interpolation_client.req.translation}, \
-                        {interpolation_client.req.first_rotation}, \
-                            {interpolation_client.req.first_rotation} \
-                                result {response.confirmation}')
+                    f'{response.confirmation}')
             break
         interpolation_client.destroy_node()
         rclpy.shutdown()

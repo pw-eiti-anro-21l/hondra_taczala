@@ -48,19 +48,25 @@ class Service(Node):
 
     def interpolation_service_callback(self, req, res):
         T = 0.1
-        res.confirmation = 'confirmed'
-        self.get_logger().info(f't:{req.translation},\
-             r1:{req.first_rotation}, r2:{req.second_rotation}, \
-                 time:{req.time}')
-        
+        self.get_logger().info(f'\nt:{req.translation},\n \
+            r1:{req.first_rotation},\n \
+            r2:{req.second_rotation},\n \
+            time:{req.time},\n \
+            type: {req.interpolation_type}')
+        res.confirmation = 'Interpolated successfully'
+
         end_positions = [req.translation, req.first_rotation,
                          req.second_rotation]
         steps = int(req.time/T) + 1
         for k in range(1, steps):
-            # positions = [self.interpolate_linear(end, req.time, T, k)
-            #              for end in end_positions]
-            positions = [self.interpolate_polynomial(end, req.time, T, k)
-                         for end in end_positions]
+            if req.interpolation_type == 'linear':
+                positions = [self.interpolate_linear(end, req.time, T, k)
+                             for end in end_positions]
+            elif req.interpolation_type == 'polynomial':
+                positions = [self.interpolate_polynomial(end, req.time, T, k)
+                             for end in end_positions]
+            else:
+                raise ValueError('Wrong interpolation type')
             self.publish_pos(positions)
             time.sleep(T)
 
