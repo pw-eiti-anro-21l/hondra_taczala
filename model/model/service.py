@@ -1,11 +1,13 @@
 import time
 
 import rclpy
+from geometry_msgs.msg import PoseStamped
 from interpolation_interfaces.srv import GoToPosition
 from rclpy.clock import ROSClock
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from sensor_msgs.msg import JointState
+from visualization_msgs.msg import Marker
 
 
 class Service(Node):
@@ -22,8 +24,21 @@ class Service(Node):
         self.joint_state.name = ['first_to_translator',
                                  'translator_to_second', 'second_to_tool']
 
-    def interpolate(self, end_pos, time, T, iteration, start_pos=0) -> float:
+    def interpolate_linear(
+            self, end_pos, time, T, iteration, start_pos=0) -> float:
         return start_pos + (end_pos-start_pos)/time*T*iteration
+
+    def interpolate_polynomial(
+            self, end_pos, time, T, iteration, start_pos=0) -> float:
+
+        t = T*iteration
+
+        a0 = start_pos
+        a1 = 0
+        a2 = 3*(end_pos - start_pos)/time**2
+        a3 = -2*(end_pos - start_pos)/time**3
+
+        return a0 + a1*t + a2*t**2 + a3*t**3
 
     def publish_pos(self, position: list) -> None:
         now = self.get_clock().now()
@@ -42,7 +57,9 @@ class Service(Node):
                          req.second_rotation]
         steps = int(req.time/T) + 1
         for k in range(1, steps):
-            positions = [self.interpolate(end, req.time, T, k)
+            # positions = [self.interpolate_linear(end, req.time, T, k)
+            #              for end in end_positions]
+            positions = [self.interpolate_polynomial(end, req.time, T, k)
                          for end in end_positions]
             self.publish_pos(positions)
             time.sleep(T)
