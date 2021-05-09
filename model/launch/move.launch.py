@@ -10,7 +10,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     xacro_file_name = 'move.urdf.xacro.xml'
     urdf_file_name = 'move-model.urdf.xml'
-    rviz_file_name = 'kdl_nonkdl.rviz'
+    rviz_file_name = 'interpolation.rviz'
     xacro = os.path.join(
         get_package_share_directory('model'),
         xacro_file_name)

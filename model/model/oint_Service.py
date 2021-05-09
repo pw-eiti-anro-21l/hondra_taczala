@@ -90,7 +90,9 @@ class Service(Node):
                     y = self.start_position[1]+(req.y_t-self.start_position[1])/steps*k
                     z = self.start_position[2]+(req.z_t-self.start_position[2])/steps*k
                     q = Quaternion(x=float(self.start_orientation[0]),y=float(self.start_orientation[1]),z=float(self.start_orientation[2]),w=0.0)
-                    
+                    X_ob = 0
+                    Y_ob = 0
+                    Z_ob = 0
                     self.publish_pos(x,y,z,q)
                     time.sleep(T)
             else:
@@ -133,6 +135,9 @@ class Service(Node):
                         x = self.start_position[0]+VX*(k-smallTsteps) + smallTsteps*VX/2
                         y = self.start_position[1]+VY*(k-smallTsteps) + smallTsteps*VY/2
                         z = self.start_position[2]+VZ*(k-smallTsteps) + smallTsteps*VZ/2
+                    X_ob = 0
+                    Y_ob = 0
+                    Z_ob = 0
                     q = Quaternion(x=float(self.start_orientation[0]),y=float(self.start_orientation[1]),z=float(self.start_orientation[2]),w=0.0)
                     self.publish_pos(x,y,z,q)
                     time.sleep(T)
@@ -149,6 +154,9 @@ class Service(Node):
                     z = self.start_position[2]+(req.z_t-self.start_position[2])/steps*k
                     rot = PyKDL.Rotation().RPY(float((self.start_orientation[0]+(req.r_r-self.start_orientation[0])/steps*k)),float((self.start_orientation[1]+(req.p_r-self.start_orientation[1])/steps*k)),float((self.start_orientation[2]+(req.y_r-self.start_orientation[2])/steps*k)))
                     quat = rot.GetQuaternion()
+                    X_ob = float(self.start_orientation[0]+(req.r_r-self.start_orientation[0])/steps*k)
+                    Y_ob = float(self.start_orientation[1]+(req.p_r-self.start_orientation[1])/steps*k)
+                    Z_ob = float(self.start_orientation[2]+(req.y_r-self.start_orientation[2])/steps*k)
                     q = Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3])
                     self.publish_pos(x,y,z,q)
                     time.sleep(T)
