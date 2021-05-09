@@ -1,7 +1,10 @@
+import os
 import sys
 from math import pi
 
 import rclpy
+import yaml
+from ament_index_python.packages import get_package_share_directory
 from interpolation_interfaces.srv import GoToPosition
 from rclpy.node import Node
 
@@ -13,6 +16,14 @@ class Client(Node):
         while not self.cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
         self.req = GoToPosition.Request()
+        file_name = 'model.yaml'
+        self.readParams(file_name)
+
+    def readParams(self, f_name) -> None:
+        p = os.path.join(get_package_share_directory('model'), f_name)
+        with open(p, 'r') as file:
+            params = yaml.load(file, Loader=yaml.FullLoader)
+            self.joint_upper_limit = float(params['joint_upper_limit'])
 
     def send_request(self):
         translation = float(sys.argv[1])
@@ -21,7 +32,7 @@ class Client(Node):
         time = float(sys.argv[4])
         interpolation_type = str(sys.argv[5])
         try:
-            if translation > 0 and translation < 1:
+            if translation > 0 and translation < self.joint_upper_limit:
                 self.req.translation = translation
             else:
                 raise ValueError()

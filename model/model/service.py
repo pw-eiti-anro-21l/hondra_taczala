@@ -19,7 +19,7 @@ class Service(Node):
         super().__init__('interpolation_service')
         self.srv = self.create_service(GoToPosition, 'jint_control_service',
                                        self.interpolation_service_callback)
-        file_name = 'model_link_params.yaml'
+        file_name = 'model.yaml'
         self.readParams(file_name)
         self.setup_publisher()
         self.setup_marker()
@@ -69,7 +69,7 @@ class Service(Node):
         with open(p, 'r') as file:
             params = yaml.load(file, Loader=yaml.FullLoader)
             self.a = float(params['a'])
-            self.box_height = float(params['box_z'])
+            self.box_height = float(params['boxZ'])
             self.cylinder_radius = float(params['cylinder_radius'])
             self.tool_length = float(params['tool_x'])
             self.d = 0.0
@@ -128,11 +128,7 @@ class Service(Node):
         [self.d, self.theta1, self.theta2] = [x for x in positions]
         itemPosition = self.get_item_position().p
         point = Point()
-        # print([itemPosition.x, itemPosition.y, itemPosition.z])
         [point.x, point.y, point.z] = [x for x in itemPosition]
-        # point.x = itemPosition.x
-        # point.y = itemPosition.y
-        # point.z = itemPosition.z
         self.marker.points.append(point)
         self.marker_publisher.publish(self.marker)
 
