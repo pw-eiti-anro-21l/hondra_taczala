@@ -31,6 +31,9 @@ setup(
             'nonKDL = model.nonkdl:main',
             'service = model.service:main',
             'client = model.client:main',
+            'ointService = model.oint_Service:main',
+            'ointClient = model.oint_Client:main',
+            
         ],
     },
 )
