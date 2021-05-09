@@ -1,17 +1,17 @@
 import sys
 
 import rclpy
-from interpolation_interfaces.srv import ointGoToPosition
+from interpolation_interfaces.srv import OintGoToPosition
 from rclpy.node import Node
 
 
 class OintClient(Node):
     def __init__(self):
         super().__init__('oint_interpolation_client')
-        self.cli = self.create_client(GoToPosition, 'oint_control_service')
+        self.cli = self.create_client(OintGoToPosition, 'oint_control_service')
         while not self.cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
-        self.req = GoToPosition.Request()
+        self.req = OintGoToPosition.Request()
 
     def send_request(self):
         self.req.x_t = float(sys.argv[1])
@@ -30,7 +30,7 @@ class OintClient(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    interpolation_client = Client()
+    interpolation_client = OintClient()
     interpolation_client.send_request()
 
     while rclpy.ok():
@@ -43,9 +43,9 @@ def main(args=None):
                     f'Service call failed {e}')
             else:
                 interpolation_client.get_logger().info(
-                    f'Client obtaied {interpolation_client.req.translation}, \
-                        {interpolation_client.req.first_rotation}, \
-                            {interpolation_client.req.first_rotation} \
+                    f'Client obtaied {interpolation_client.req.x_t}, \
+                        {interpolation_client.req.y_t}, \
+                            {interpolation_client.req.z_t} \
                                 result {response.confirmation}')
             break
         interpolation_client.destroy_node()
