@@ -89,10 +89,12 @@ class Service(Node):
                     x = self.start_position[0]+(req.x_t-self.start_position[0])/steps*k
                     y = self.start_position[1]+(req.y_t-self.start_position[1])/steps*k
                     z = self.start_position[2]+(req.z_t-self.start_position[2])/steps*k
-                    q = Quaternion(x=float(self.start_orientation[0]),y=float(self.start_orientation[1]),z=float(self.start_orientation[2]),w=0.0)
-                    X_ob = 0
-                    Y_ob = 0
-                    Z_ob = 0
+                    X_ob = self.start_orientation[0]
+                    Y_ob = self.start_orientation[1]
+                    Z_ob = self.start_orientation[2]
+                    rot = PyKDL.Rotation().RPY(X_ob,Y_ob,Z_ob)
+                    quat = rot.GetQuaternion()
+                    q = Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3])
                     self.publish_pos(x,y,z,q)
                     time.sleep(T)
             else:
@@ -135,10 +137,12 @@ class Service(Node):
                         x = self.start_position[0]+VX*(k-smallTsteps) + smallTsteps*VX/2
                         y = self.start_position[1]+VY*(k-smallTsteps) + smallTsteps*VY/2
                         z = self.start_position[2]+VZ*(k-smallTsteps) + smallTsteps*VZ/2
-                    X_ob = 0
-                    Y_ob = 0
-                    Z_ob = 0
-                    q = Quaternion(x=float(self.start_orientation[0]),y=float(self.start_orientation[1]),z=float(self.start_orientation[2]),w=0.0)
+                    X_ob = self.start_orientation[0]
+                    Y_ob = self.start_orientation[1]
+                    Z_ob = self.start_orientation[2]
+                    rot = PyKDL.Rotation().RPY(X_ob,Y_ob,Z_ob)
+                    quat = rot.GetQuaternion()
+                    q = Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3])
                     self.publish_pos(x,y,z,q)
                     time.sleep(T)
 
