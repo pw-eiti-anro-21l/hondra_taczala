@@ -14,18 +14,26 @@ class OintClient(Node):
         self.req = OintGoToPosition.Request()
 
     def send_request(self):
-        self.req.x_t = float(sys.argv[1])
-        self.req.y_t = float(sys.argv[2])
-        self.req.z_t = float(sys.argv[3])
-        self.req.r_r = float(sys.argv[4])
-        self.req.p_r = float(sys.argv[5])
-        self.req.y_r = float(sys.argv[6])
-        self.req.time = float(sys.argv[7])
-        self.req.option = sys.argv[8]
-        self.req.version = sys.argv[9]
+        try:
+            self.req.x_t = float(sys.argv[1])
+            self.req.y_t = float(sys.argv[2])
+            self.req.z_t = float(sys.argv[3])
+            self.req.r_r = float(sys.argv[4])
+            self.req.p_r = float(sys.argv[5])
+            self.req.y_r = float(sys.argv[6])
+            self.req.time = float(sys.argv[7])
+            if self.req.time<=0:
+                print('zle dane')
+                sys.exit()
+            self.req.option = sys.argv[8]
+            self.req.version = sys.argv[9]
 
 
-        self.future = self.cli.call_async(self.req)
+            self.future = self.cli.call_async(self.req)
+            
+        except Exception:
+            print('zle dane')
+            sys.exit()
 
 
 def main(args=None):
