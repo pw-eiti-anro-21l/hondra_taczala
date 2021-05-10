@@ -1,0 +1,76 @@
+<?xml version="1.0" ?>
+<robot name="robot_lab2" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:property name="p" value="${load_yaml('model.yaml')}"/>
+    <link name="base_link">
+        <visual>
+        <origin xyz="0 0 ${p['half_box_height']}" />
+        <geometry>
+          <box size="${p['boxX']} ${p['boxY']} ${p['boxZ']}"/>
+        </geometry>
+        </visual>
+    </link>
+  
+    <link name="first_link">
+        <visual>
+        <origin xyz="0 0 ${p['first_link_z']}" />
+        <geometry>
+          <cylinder radius="${p['cylinder_radius']}" length="${p['first_link_length']}"/>
+        </geometry>
+        </visual>
+    </link>
+  
+  <link name="translator">
+        <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0" length="0"/>
+        </geometry>
+        </visual>
+    </link>
+  
+  <link name="second_link">
+        <visual>
+        <origin xyz="${p['a_half']} 0 0" rpy="0 ${p['pi']} 0"/>
+        <geometry>
+          <cylinder radius="${p['cylinder_radius']}" length="${p['a']}"/>
+        </geometry>
+        </visual>
+    </link>
+  
+  <link name="tool">
+        <visual>
+        <origin xyz="${p['tool_origin_x']} 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${p['tool_x']} ${p['tool_y']} ${p['tool_z']}"/>
+        </geometry>
+        </visual>
+    </link>
+  
+        <joint name="base_to_first_link" type="fixed">
+          <parent link="base_link"/>
+          <child link="first_link"/>
+      </joint>
+  
+      <joint name="first_to_translator" type="prismatic">
+          <parent link="first_link"/>
+          <child link="translator"/>
+          <origin xyz="0 0 ${p['first_to_translator_z']}" rpy="0 0 0"/>
+          <axis xyz="0 0 1"/>
+          <limit upper="${p['d']}" lower="0" effort="20" velocity="0"/>
+      </joint>
+  
+  <joint name="translator_to_second" type="continuous">
+          <parent link="translator"/>
+          <child link="second_link"/>
+          <origin rpy="0 0 0"/>
+          <axis xyz="0 0 1"/>
+
+          </joint>
+  <joint name="second_to_tool" type="revolute">
+          <parent link="second_link"/>
+          <child link="tool"/>
+          <origin xyz="${p['a']} 0 0" rpy="0 0 0"/>
+          <limit upper="${p['pi']}" lower="-${p['pi']}" effort="20" velocity="0"/>
+          <axis xyz="0 0 1"/>
+      </joint>
+  </robot>
