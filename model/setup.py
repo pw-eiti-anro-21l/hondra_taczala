@@ -14,7 +14,9 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name), glob('launch/*.py')),
         (os.path.join('share', package_name), glob('urdf/*')),
-        (os.path.join('share', package_name), glob('model/*.rviz'))
+        (os.path.join('share', package_name), glob('model/*.rviz')),
+        (os.path.join('share', package_name), glob('model/model/*')),
+
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -27,6 +29,11 @@ setup(
         'console_scripts': [
             'KDL = model.KDL:main',
             'nonKDL = model.nonkdl:main',
+            'service = model.service:main',
+            'client = model.client:main',
+            'ointService = model.oint_Service:main',
+            'ointClient = model.oint_Client:main',
+            
         ],
     },
 )
