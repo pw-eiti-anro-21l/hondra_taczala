@@ -8,7 +8,7 @@ from rclpy.qos import QoSProfile
 from geometry_msgs.msg import Quaternion,PoseStamped, Point
 import PyKDL
 from visualization_msgs.msg import MarkerArray, Marker
-
+import math
 
 class Service(Node):
     def __init__(self):
@@ -80,7 +80,7 @@ class Service(Node):
         steps = int(req.time/T) + 1
         
         res.confirmation = 'confirmed'
-
+  
         if req.version=='1':
             if req.option=='linear':           
                 for k in range(1, steps):
@@ -97,6 +97,105 @@ class Service(Node):
                     q = Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3])
                     self.publish_pos(x,y,z,q)
                     time.sleep(T)
+            if req.option == 'rectangle':
+                while True:
+                    counter2 = 0
+                    counter3 = 0
+                    counter4 = 0
+                    for k in range(1, steps):
+                        if k<=steps/4:
+                            
+                            x1 = req.x_t
+                            y1 = req.y_t
+                            z1 = req.z_t
+                            x2 = req.r_r
+                            y2 = req.p_r
+                            z2 = req.z_t
+                            x = x1 + (req.r_r-x1)/steps*k*4
+                            y = y1 + (req.p_r-y1)/steps*k*4
+                            z = z1 + (req.z_t-z1)/steps*k*4
+                            X_ob = self.start_orientation[0]
+                            Y_ob = self.start_orientation[1]
+                            Z_ob = self.start_orientation[2]
+                            rot = PyKDL.Rotation().RPY(X_ob,Y_ob,Z_ob)
+                            quat = rot.GetQuaternion()
+                            q = Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3])
+                            self.publish_pos(x,y,z,q)
+                        elif k > steps/4 and k <= steps/2:
+
+                            x2 = req.r_r
+                            y2 = req.p_r
+                            z2 = req.z_t
+                            x3 = req.r_r
+                            y3 = req.p_r
+                            z3 = req.y_r
+                            x = x2 + (x3-x2)/steps*counter2*4
+                            y = y2 + (y3-y2)/steps*counter2*4
+                            z = z2 + (z3-z2)/steps*counter2*4
+                            X_ob = self.start_orientation[0]
+                            Y_ob = self.start_orientation[1]
+                            Z_ob = self.start_orientation[2]
+                            rot = PyKDL.Rotation().RPY(X_ob,Y_ob,Z_ob)
+                            quat = rot.GetQuaternion()
+                            q = Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3])
+                            self.publish_pos(x,y,z,q)
+                            counter2 += 1
+                        elif k > steps/2 and k <= steps/4*3:
+
+                            x3 = req.r_r
+                            y3 = req.p_r
+                            z3 = req.y_r
+                            x4 = req.x_t
+                            y4 = req.y_t
+                            z4 = req.y_r
+                            x = x3 + (x4-x3)/steps*counter3*4
+                            y = y3 + (y4-y3)/steps*counter3*4
+                            z = z3 + (z4-z3)/steps*counter3*4
+                            X_ob = self.start_orientation[0]
+                            Y_ob = self.start_orientation[1]
+                            Z_ob = self.start_orientation[2]
+                            rot = PyKDL.Rotation().RPY(X_ob,Y_ob,Z_ob)
+                            quat = rot.GetQuaternion()
+                            q = Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3])
+                            self.publish_pos(x,y,z,q)
+                            counter3 += 1
+
+                        else:
+
+                            x1 = req.x_t
+                            y1 = req.y_t
+                            z1 = req.z_t
+                            x4 = req.x_t
+                            y4 = req.y_t
+                            z4 = req.y_r
+                            x = x4 + (x1-x4)/steps*counter4*4
+                            y = y4 + (y1-y4)/steps*counter4*4
+                            z = z4 + (z1-z4)/steps*counter4*4
+                            X_ob = self.start_orientation[0]
+                            Y_ob = self.start_orientation[1]
+                            Z_ob = self.start_orientation[2]
+                            rot = PyKDL.Rotation().RPY(X_ob,Y_ob,Z_ob)
+                            quat = rot.GetQuaternion()
+                            q = Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3])
+                            self.publish_pos(x,y,z,q)
+                            counter4 += 1
+                        time.sleep(T)
+
+            elif req.option == 'circle':
+                while True:
+
+                    for k in range(1, steps):
+                        x1 = req.x_t
+                        y1 = req.y_t
+                        z1 = req.z_t
+                        x2 = req.r_r
+                        y2 = req.p_r
+                        z2 = req.z_t
+                        r = math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)/2
+                        x = (x2 + x1)/2
+                        y = (y2 + y1)/2
+                        z = (z2 + z1)/2
+
             else:
                 for k in range(1, steps):
                     smallT = 0.2*req.time
