@@ -185,16 +185,28 @@ class Service(Node):
                 while True:
 
                     for k in range(1, steps):
-                        x1 = req.x_t
-                        y1 = req.y_t
-                        z1 = req.z_t
-                        x2 = req.r_r
-                        y2 = req.p_r
-                        z2 = req.z_t
-                        r = math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)/2
-                        x = (x2 + x1)/2
-                        y = (y2 + y1)/2
-                        z = (z2 + z1)/2
+                        x = req.x_t
+                        y = req.y_t
+                        z = req.z_t
+                        r = req.r_r
+                        starting_point_x = x+r
+                        starting_point_y = y
+                        new_z = math.sin(2*math.pi/steps*k)*r
+                        new_x = math.cos(2*math.pi/steps*k)*r
+                        X_ob = self.start_orientation[0]
+                        Y_ob = self.start_orientation[1]
+                        Z_ob = self.start_orientation[2]
+                        rot = PyKDL.Rotation().RPY(X_ob,Y_ob,Z_ob)
+                        quat = rot.GetQuaternion()
+                        q = Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3])
+
+                        self.publish_pos(new_x,y,new_z,q)
+
+                        time.sleep(T)
+
+
+
+                        
 
             else:
                 for k in range(1, steps):
