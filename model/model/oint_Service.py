@@ -200,7 +200,7 @@ class Service(Node):
                         quat = rot.GetQuaternion()
                         q = Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3])
 
-                        self.publish_pos(new_x,y,new_z,q)
+                        self.publish_pos(x + new_x,y,z + new_z,q)
 
                         time.sleep(T)
 
