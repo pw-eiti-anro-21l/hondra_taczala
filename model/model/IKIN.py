@@ -42,7 +42,7 @@ class IKIN(Node):
             self.theta1 = 0.0
             self.theta2 = 0.0
 
-    def computeParams(self, x, y):
+    def computeParams(self, x, y, z):
         th2_1 = acos(
             (x ** 2 + y ** 2 - self.a ** 2 - self.tool_length ** 2)
             / (2 * self.a * self.tool_length)
@@ -84,66 +84,44 @@ class IKIN(Node):
         delta4 = th2_4 - self.theta2 + th1_4 - self.theta1
 
         delt_min = min(delta1, delta2, delta3, delta4)
-
+        
         if delt_min == delta1:
-            self.th1 = th1_1
-            self.theta2 = th2_1
+            theta1 = th1_1
+            theta2 = th2_1
         elif delt_min == delta2:
-            self.th1 = th1_2
-            self.theta2 = th2_2
+            theta1 = th1_2
+            theta2 = th2_2
         elif delt_min == delta3:
-            self.th1 = th1_3
-            self.theta2 = th2_3
+            theta1 = th1_3
+            theta2 = th2_3
         elif delt_min == delta4:
-            self.th1 = th1_4
-            self.theta2 = th2_4
+            theta1 = th1_4
+            theta2 = th2_4
+        if(abs(theta2) > 1.57):
+            raise Exception   
+        self.theta1 = theta1
+        self.theta2 = theta2
+        self.d = z - self.box_height - self.cylinder_radius
 
-    def calculateParams(self):
-        x, y, z = 0, 0, 0
-        a, tool_len = 1, 1
-        base_height, cylinder_radius = 0, 0
 
-        th1 = Symbol("th1", real=True)
-        th2 = Symbol("th2", real=True)
-        d = Symbol("d", real=True)
+    # def calculateParams(self):
+    #     x, y, z = 0, 0, 0
+    #     a, tool_len = 1, 1
+    #     base_height, cylinder_radius = 0, 0
 
-        e1 = Eq(self.a * cos(th1) + tool_len * cos(th1 + th2), x)
-        e2 = Eq(self.a * sin(th1) + tool_len * sin(th1 + th2), y)
-        e3 = Eq(d + self.box_height + self.cylinder_radius, z)
+    #     th1 = Symbol("th1", real=True)
+    #     th2 = Symbol("th2", real=True)
+    #     d = Symbol("d", real=True)
 
-        sol = solve([e1, e2, e3], th1, th2, d)
-        return sol
+    #     e1 = Eq(self.a * cos(th1) + tool_len * cos(th1 + th2), x)
+    #     e2 = Eq(self.a * sin(th1) + tool_len * sin(th1 + th2), y)
+    #     e3 = Eq(d + self.box_height + self.cylinder_radius, z)
+
+    #     sol = solve([e1, e2, e3], th1, th2, d)
+    #     return sol
 
     def listener_callback(self, msg):
         msg = msg.pose
-        if msg.position.z <= (
-            self.d_start + self.cylinder_radius + self.box_height
-        ) and msg.position.z >= (self.cylinder_radius + self.box_height):
-            # if math.sqrt((msg.position.x)**2 + (msg.position.y)**2) <= self.a + self.tool_length and math.sqrt((msg.position.x)**2 + (msg.position.y)**2) >= self.a:
-            params = self.calculateParams()
-            if len(params) != 0:
-
-                self.theta1 = params[0][0]
-                self.theta2 = params[0][1]
-                self.d = params[0][2]
-
-                pass
-            else:
-                self.get_logger().warn(
-                    "Zła odleglosc od robota - nie można określić położenia stawów"
-                )
-                self.d = 2.0
-                self.theta1 = 1.0
-                self.theta2 = 1.0
-        else:
-            self.get_logger().warn(
-                "Zła wysokość - nie można określić położenia stawów"
-                + (math.sqrt((msg.position.x) ** 2 + (msg.position.y) ** 2))
-            )
-            self.d = 2.0
-            self.theta1 = 1.0
-            self.theta2 = 1.0
-
         self.joint_publisher = self.create_publisher(
             JointState, "joint_states", QoSProfile(depth=10)
         )
@@ -157,11 +135,45 @@ class IKIN(Node):
             "second_to_tool",
         ]
         self.joint_state.position = [self.d, self.theta1, self.theta2]
+        if msg.position.z <= (
+            self.d_start + self.cylinder_radius + self.box_height
+        ) and msg.position.z >= (self.cylinder_radius + self.box_height):
+            # if math.sqrt((msg.position.x)**2 + (msg.position.y)**2) <= self.a + self.tool_length and math.sqrt((msg.position.x)**2 + (msg.position.y)**2) >= self.a:
+            
+            try:
+                self.computeParams(msg.position.x, msg.position.y, msg.position.z)
+                self.joint_publisher.publish(self.joint_state)
+
+            except:
+                self.get_logger().warn(
+                "Nie ma dobrego ustawienia stawów"
+            )
+            # if len(params) != 0:
+
+            #     self.theta1 = params[0][0]
+            #     self.theta2 = params[0][1]
+            #     self.d = params[0][2]
+
+            #     pass
+            # else:
+            #     self.get_logger().warn(
+            #         "Zła odleglosc od robota - nie można określić położenia stawów"
+            #     )
+            #     self.d = 2.0
+            #     self.theta1 = 1.0
+            #     self.theta2 = 1.0
+        else:
+            self.get_logger().warn(
+                "Zła wysokość - nie można określić położenia stawów"
+            )
+            
+            
+
+
 
         # update transform
         # (moving in a circle with radius=2)
 
-        self.joint_publisher.publish(self.joint_state)
 
 
 def euler_to_quaternion(roll, pitch, yaw):
