@@ -45,5 +45,6 @@ def generate_launch_description():
                 parameters=[{"use_sim_time": use_sim_time}],
                 arguments=["-d", rviz],
             ),
+            Node(package="model", executable="ikin", name="ikin", output="screen"),
         ]
     )

@@ -7,7 +7,6 @@ from rclpy.clock import ROSClock
 from interpolation_interfaces.srv import OintGoToPosition
 import math
 import yaml
-from sympy import Eq, Symbol, cos, sin, solve
 
 from math import atan, sin, cos, pi, sqrt, acos, asin, atan2
 
@@ -50,7 +49,6 @@ class IKIN(Node):
         th1_1 = -asin(self.tool_length * sin(th2_1) / (sqrt(x ** 2 + y ** 2))) + atan2(
             y, x
         )
-        delta1 = th2_1 - self.theta2 + th1_1 - self.theta1
 
         th2_2 = -acos(
             (x ** 2 + y ** 2 - self.a ** 2 - self.tool_length ** 2)
@@ -59,7 +57,6 @@ class IKIN(Node):
         th1_2 = -asin(self.tool_length * sin(th2_2) / (sqrt(x ** 2 + y ** 2))) + atan2(
             y, x
         )
-        delta2 = th2_2 - self.theta2 + th1_2 - self.theta1
 
         th2_3 = acos(
             (x ** 2 + y ** 2 - self.a ** 2 - self.tool_length ** 2)
@@ -70,7 +67,6 @@ class IKIN(Node):
             - asin(self.tool_length * sin(th2_3) / (sqrt(x ** 2 + y ** 2)))
             + atan2(y, x)
         )
-        delta3 = th2_3 - self.theta2 + th1_3 - self.theta1
 
         th2_4 = -acos(
             (x ** 2 + y ** 2 - self.a ** 2 - self.tool_length ** 2)
@@ -81,44 +77,31 @@ class IKIN(Node):
             - asin(self.tool_length * sin(th2_4) / (sqrt(x ** 2 + y ** 2)))
             + atan2(y, x)
         )
-        delta4 = th2_4 - self.theta2 + th1_4 - self.theta1
 
-        delt_min = min(delta1, delta2, delta3, delta4)
-        
-        if delt_min == delta1:
+        difference1 = th2_1 - self.theta2 + th1_1 - self.theta1
+        difference2 = th2_2 - self.theta2 + th1_2 - self.theta1
+        difference3 = th2_3 - self.theta2 + th1_3 - self.theta1
+        difference4 = th2_4 - self.theta2 + th1_4 - self.theta1
+
+        best_difference = min(difference1, difference2, difference3, difference4)
+
+        if best_difference == difference1:
             theta1 = th1_1
             theta2 = th2_1
-        elif delt_min == delta2:
+        elif best_difference == difference2:
             theta1 = th1_2
             theta2 = th2_2
-        elif delt_min == delta3:
+        elif best_difference == difference3:
             theta1 = th1_3
             theta2 = th2_3
-        elif delt_min == delta4:
+        elif best_difference == difference4:
             theta1 = th1_4
             theta2 = th2_4
-        if(abs(theta2) > 1.57):
-            raise Exception   
+        if abs(theta2) > 1.57:
+            raise Exception
         self.theta1 = theta1
         self.theta2 = theta2
         self.d = z - self.box_height - self.cylinder_radius
-
-
-    # def calculateParams(self):
-    #     x, y, z = 0, 0, 0
-    #     a, tool_len = 1, 1
-    #     base_height, cylinder_radius = 0, 0
-
-    #     th1 = Symbol("th1", real=True)
-    #     th2 = Symbol("th2", real=True)
-    #     d = Symbol("d", real=True)
-
-    #     e1 = Eq(self.a * cos(th1) + tool_len * cos(th1 + th2), x)
-    #     e2 = Eq(self.a * sin(th1) + tool_len * sin(th1 + th2), y)
-    #     e3 = Eq(d + self.box_height + self.cylinder_radius, z)
-
-    #     sol = solve([e1, e2, e3], th1, th2, d)
-    #     return sol
 
     def listener_callback(self, msg):
         msg = msg.pose
@@ -139,15 +122,13 @@ class IKIN(Node):
             self.d_start + self.cylinder_radius + self.box_height
         ) and msg.position.z >= (self.cylinder_radius + self.box_height):
             # if math.sqrt((msg.position.x)**2 + (msg.position.y)**2) <= self.a + self.tool_length and math.sqrt((msg.position.x)**2 + (msg.position.y)**2) >= self.a:
-            
+
             try:
                 self.computeParams(msg.position.x, msg.position.y, msg.position.z)
                 self.joint_publisher.publish(self.joint_state)
 
             except:
-                self.get_logger().warn(
-                "Nie ma dobrego ustawienia stawów"
-            )
+                self.get_logger().warn("Nie ma dobrego ustawienia stawów")
             # if len(params) != 0:
 
             #     self.theta1 = params[0][0]
@@ -163,17 +144,10 @@ class IKIN(Node):
             #     self.theta1 = 1.0
             #     self.theta2 = 1.0
         else:
-            self.get_logger().warn(
-                "Zła wysokość - nie można określić położenia stawów"
-            )
-            
-            
-
-
+            self.get_logger().warn("Zła wysokość - nie można określić położenia stawów")
 
         # update transform
         # (moving in a circle with radius=2)
-
 
 
 def euler_to_quaternion(roll, pitch, yaw):
