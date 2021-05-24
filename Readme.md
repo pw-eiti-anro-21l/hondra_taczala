@@ -12,3 +12,5 @@
 
 <a href="https://github.com/pw-eiti-anro-21l/hondra_taczala/wiki/Laboratorium-4">Laboratorium 4</a>
 
+<a href="https://github.com/pw-eiti-anro-21l/hondra_taczala/wiki/Laboratorium-5">Laboratorium 5</a>
+
